@@ -1,19 +1,16 @@
 <template>
+<div class="button">
   <button
-    @click="
-      {
-        handleFacebookLogin;
-      }
-    "
+    @click="handleFacebookLogin"
   >
     Login with Facebook
   </button>
+</div>
 </template>
 
-
-
 <script>
-import firebase from "firebase/app";
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInWithPopup, FacebookAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBSURCA7gFW9OV4YmHICoFL_jJh0k9nYus",
@@ -25,28 +22,39 @@ const firebaseConfig = {
   measurementId: "G-4D2WG4Y4XZ",
 };
 
-firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const provider = new FacebookAuthProvider();
 
 export default {
-methods: {
-  handleFacebookLogin(path, data) {
-    var provider = new firebase.auth.FacebookAuthProvider();
-firebase.auth()
-      .signInWithPopup(provider)
-      .then((result) => {
-         var credential = result.credential;
-var token = credential.accessToken;
-var user = result.user;
-    }).catch((error) => {
-       var errorCode = error.code;
-       var errorMessage = error.message;
-       var email = error.email;
-       var credential = error.credential;
-    
-    });
-}
-}
-}
+  methods: {
+    handleFacebookLogin(path, data) {
+      const auth = getAuth();
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          // The signed-in user info.
+          const user = result.user;
+          console.log("=======>",user);
+          // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+          const credential = FacebookAuthProvider.credentialFromResult(result);
+          const accessToken = credential.accessToken;
+
+          // IdP data available using getAdditionalUserInfo(result)
+          // ...
+        })
+        .catch((error) => {
+          // Handle Errors here.
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // The email of the user's account used.
+          const email = error.customData.email;
+          // The AuthCredential type that was used.
+          const credential = FacebookAuthProvider.credentialFromError(error);
+
+          // ...
+        });
+    },
+  },
+};
 
 // methods: {
 //   handleFacebookLogin(path, data) {
@@ -99,3 +107,10 @@ var user = result.user;
 //   });
 // };
 </script>
+
+<style>
+  .button {
+    position: absolute;
+    top: 100px;
+  }
+</style>
