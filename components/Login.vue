@@ -1,13 +1,19 @@
 <template>
   <div class="button">
-    <button v-if="isLoggedIn" @click="handleFacebookLogout">Logout</button>
+    <button v-if="loggedIn" @click="handleFacebookLogout">Logout</button>
     <button v-else @click="handleFacebookLogin">Login with Facebook</button>
   </div>
 </template>
 
 <script>
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, FacebookAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  signInWithPopup,
+  FacebookAuthProvider,
+  signOut,
+} from "firebase/auth";
+import VueJwtDecode from 'vue-jwt-decode';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBSURCA7gFW9OV4YmHICoFL_jJh0k9nYus",
@@ -21,13 +27,55 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const provider = new FacebookAuthProvider();
-var user1;
+var user1,loggedIn;
+
 export default {
+  beforeMount() {
+    this.checkToken()
+  },
+  data() {
+    return{
+      loggedIn: false
+    }
+  },
+  // data: {
+  //   token: ''
+  // },
   methods: {
-    isLoggedIn : function(){ console.log("Login>>",this.user1); return this.user1},
-    handleFacebookLogout(){
-      console.log("Logout>>",user1);
+    async checkToken() {
+    if(localStorage.getItem('accessToken') != null) {
+      
+      this.loggedIn = true;
+      console.log('accesstoken',this.loggedIn);
+      let accessToken = localStorage.getItem('accessToken');
+      try{
+        let decoded = await VueJwtDecode.decode(accessToken,'RS256');
+        console.log('parse.user=>',decoded);}
+      catch (error) {console.error(error);}
+      
+      console.log('accessToken=>',accessToken);
+      
+      } else {console.log('nope'); this.loggedIn = false;}
+      // if(loggedIn) {
+      // console.log('yes',localStorage.getItem('accessToken'))
+      // } else {console.log('nope',localStorage.getItem('accessToken'))}
     },
+
+    handleFacebookLogout() {
+      const auth = getAuth();
+      signOut(auth)
+        .then(() => {
+          // Sign-out successful.
+          console.log("Sign-out successful.");
+        })
+        .catch((_error) => {
+          // An error happened.
+          console.log("Sign-out error.");
+        });
+        localStorage.removeItem('accessToken');
+        this.checkToken();
+    },
+
     handleFacebookLogin(path, data) {
       const auth = getAuth();
       signInWithPopup(auth, provider)
@@ -35,13 +83,16 @@ export default {
           // The signed-in user info.
           const user = result.user;
           user1 = user;
+          
           console.log("=======>", user);
-          console.log("1=======>", user1);
+          
 
           // This gives you a Facebook Access Token. You can use it to access the Facebook API.
           const credential = FacebookAuthProvider.credentialFromResult(result);
           const accessToken = credential.accessToken;
-
+          this.token = accessToken;
+          localStorage.setItem('accessToken', user.accessToken);
+          this.checkToken();
           // IdP data available using getAdditionalUserInfo(result)
           // ...
         })
@@ -56,6 +107,7 @@ export default {
 
           // ...
         });
+        
     },
   },
 };
