@@ -2,7 +2,9 @@
   <div class="button">
     <button v-if="loggedIn" @click="handleFacebookLogout">Logout</button>
     <button v-else @click="handleFacebookLogin">Login with Facebook</button>
+    <p>{{name}}</p>
   </div>
+  
 </template>
 
 <script>
@@ -27,15 +29,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const provider = new FacebookAuthProvider();
-var user1,loggedIn;
+var user1,loggedIn,name;
 
 export default {
   beforeMount() {
     this.checkToken()
   },
-  data() {
+   data() {
     return{
-      loggedIn: false
+      loggedIn: false,
+      name: null
     }
   },
   // data: {
@@ -50,7 +53,9 @@ export default {
       let accessToken = localStorage.getItem('accessToken');
       try{
         let decoded = await VueJwtDecode.decode(accessToken,'RS256');
+        this.name = decoded.name;
         console.log('parse.user=>',decoded);}
+        
       catch (error) {console.error(error);}
       
       console.log('accessToken=>',accessToken);
