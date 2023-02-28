@@ -2,7 +2,14 @@
 <div>
   <Navbar />
   <Login />
-  <li><NuxtLink to="/user">User</NuxtLink></li>
+  <ul>
+    <li><NuxtLink to="/">Нүүр</NuxtLink></li>
+    <li><NuxtLink to="/user">User</NuxtLink></li>
+  </ul>
+ 
+  <main>
+    <Nuxt />
+  </main>
 </div>
 </template>
 

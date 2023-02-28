@@ -1,5 +1,5 @@
 <template>
-  <div class="button">
+  <div class="loginButton">
     <button v-if="loggedIn" @click="handleFacebookLogout">Logout</button>
     <button v-else @click="handleFacebookLogin">Login with Facebook</button>
     <p>{{name}}</p>
@@ -119,8 +119,9 @@ export default {
 </script>
 
 <style>
-.button {
+.loginButton {
   position: absolute;
-  top: 100px;
+  top: 20px;
+  right: 200px;
 }
 </style>

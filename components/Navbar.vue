@@ -1,9 +1,5 @@
 <template>
-  <ul>
-    <li><a class="active" href="#home">Нүүр</a></li>
-    <li><NuxtLink to="/user">User</NuxtLink></li>
-    
-  </ul>
+
 </template>
 
 <style>
